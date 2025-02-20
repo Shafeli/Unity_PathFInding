@@ -352,6 +352,7 @@ GameObject:
   - component: {fileID: 619807974}
   - component: {fileID: 619807978}
   - component: {fileID: 619807977}
+  - component: {fileID: 619807979}
   m_Layer: 0
   m_Name: AgentTest
   m_TagString: Untagged
@@ -454,9 +455,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc0ba8ec0435d2d4a8591830781b6aff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _behaviors: {fileID: 0}
-  _stateMachineMetaDatas: {fileID: 0}
-  _objectOverlayRenderer: {fileID: 0}
+  _behaviors: {fileID: 11400000, guid: 906f72ab79e3bd74b94ee5dd26c5df07, type: 2}
+  _stateMachineMetaDatas: {fileID: 11400000, guid: ea09d5dce48b77a47a69660192f068d1, type: 2}
+  _objectOverlayRenderer: {fileID: 619807977}
+  _kinematic: {fileID: 0}
+  _rotationSpeed: 200
+--- !u!114 &619807979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 619807973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae1b006c26367fe4aaf1fdda671ffb56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxSpeed: 5
+  _maxAcceleration: 2
+  _maxAngularVelocity: 180
+  _maxAngularAcceleration: 90
 --- !u!1 &1767962303
 GameObject:
   m_ObjectHideFlags: 0
@@ -504,6 +523,8 @@ MonoBehaviour:
   _behaviors: {fileID: 11400000, guid: 906f72ab79e3bd74b94ee5dd26c5df07, type: 2}
   _stateMachineMetaDatas: {fileID: 0}
   _objectOverlayRenderer: {fileID: 0}
+  _kinematic: {fileID: 0}
+  _rotationSpeed: 200
 --- !u!212 &1767962306
 SpriteRenderer:
   m_ObjectHideFlags: 0
