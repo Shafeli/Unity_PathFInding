@@ -10,8 +10,8 @@ public class BrokkrVector2
         // Constant avoid division by zero
         private const float KTolerance = 1e-6f;
 
-        public float m_x;
-        public float m_y;
+        private float m_x;
+        private float m_y;
 
         // Constructor
         public Vector2(float x, float y)

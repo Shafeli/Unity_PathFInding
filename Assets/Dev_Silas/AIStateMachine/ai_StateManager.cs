@@ -23,7 +23,7 @@ public class AiStateManager : MonoBehaviour
     private bool _isStarted = false;
     private bool _isPaused = false;
 
-    private Vector2 _velocity;
+    private BrokkrVector2.Vector2 _velocity;
     private float _currentRotation;
 
     private void Start()
@@ -72,17 +72,20 @@ public class AiStateManager : MonoBehaviour
 
     public void SetSteering(Vector2 direction, float speedFactor = 1.0f)
     {
-        BrokkrVector2.Vector2 desiredVelocity = direction.normalized * MaxSpeed * Mathf.Clamp01(speedFactor);
+        BrokkrVector2.Vector2 directionConvert = BrokkrVector2.Vector2.FromUnityVector(direction);
+
+        BrokkrVector2.Vector2 desiredVelocity = directionConvert.Normalize() * MaxSpeed * Mathf.Clamp01(speedFactor);
+
         _velocity = BrokkrVector2.Vector2.Lerp(_velocity, desiredVelocity, 0.1f); // Smooth acceleration
     }
 
     private void ApplyMovement()
     {
-        transform.position += (Vector3)_velocity * Time.deltaTime;
+        transform.position += (Vector3)BrokkrVector2.Vector2.ToUnityVector(_velocity) * Time.deltaTime;
 
-        if (_velocity.sqrMagnitude > 0.01f)
+        if (_velocity.LengthSquared() > 0.01f)
         {
-            float targetAngle = Mathf.Atan2(_velocity.y, _velocity.x) * Mathf.Rad2Deg;
+            float targetAngle = Mathf.Atan2(_velocity.Y, _velocity.X) * Mathf.Rad2Deg;
             _currentRotation = Mathf.LerpAngle(_currentRotation, targetAngle, _rotationSpeed * Time.deltaTime);
             transform.rotation = Quaternion.Euler(0, 0, _currentRotation);
         }
