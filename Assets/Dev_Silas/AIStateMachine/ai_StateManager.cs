@@ -54,7 +54,7 @@ public class AiStateManager : MonoBehaviour
         _currentState = BehaviorFactory.GetBehavior(StateMachineMetaData?.StartingStateName);
         if (_currentState == null)
         {
-            Debug.LogError($"Failed to initialize AI state: {StateMachineMetaData?.StartingStateName}");
+            Debug.Log($"Failed to initialize AI state: {StateMachineMetaData?.StartingStateName}");
             return;
         }
 
