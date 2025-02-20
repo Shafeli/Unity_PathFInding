@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "AiFactory", menuName = "AiStateMachine/AiBehaviorManager")]
+[CreateAssetMenu(fileName = "ai_StateMachine", menuName = "Behaviors/ai_StateMachine")]
 public class AiBehaviorManager : ScriptableObject
 {
     [System.Serializable]
@@ -12,12 +12,21 @@ public class AiBehaviorManager : ScriptableObject
         public string AssociatedStateName; // Name of the associated state
     }
 
-    [SerializeField] public string StartingStateConfigData; // Name or identifier
-    [SerializeField] public string StartingStateName;
-    [SerializeField] public bool UseSpawnState = false;
+    // Backing fields
+    /////////////////////////////////////////////////////////////////////
+    [SerializeField] private string startingStateConfigData;
+    [SerializeField] private string startingStateName;
+    [SerializeField] private bool useSpawnState = false;
+    [SerializeField] private BehaviorFactory behaviorFactory;  // Reference to Factory
+    [SerializeField] private List<AiDefinition> aiDefinitions = new List<AiDefinition>();
 
-    public BehaviorFactory behaviorFactory; // Reference to Factory
-    public List<AiDefinition> aiDefinitions = new List<AiDefinition>();
+    // Readonly properties
+    /////////////////////////////////////////////////////////////////////
+    public string StartingStateConfigData => startingStateConfigData;
+    public string StartingStateName => startingStateName;
+    public bool UseSpawnState => useSpawnState;
+    public BehaviorFactory BehaviorFactory => behaviorFactory;
+    public IReadOnlyList<AiDefinition> AiDefinitions => aiDefinitions; // Stop external moding
 
     public ScriptableObject GetConfigByStateName(string associatedStateName)
     {

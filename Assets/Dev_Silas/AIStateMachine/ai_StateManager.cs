@@ -1,236 +1,118 @@
-
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class AiStateManager : MonoBehaviour
 {
-    public enum ControlState { RandomWalk, HereAndBack, Stunned, Null, Death, Pause, Resume }
+    // Serialized backing fields
+    [SerializeField] private BehaviorFactory _behaviors;
+    [SerializeField] private AiBehaviorManager _stateMachineMetaDatas;
+    [SerializeField] private ObjectOverlayTextRenderer _objectOverlayRenderer;
 
-    public BehaviorFactory _behaviorFactory; // Behavior Factory ScriptableObject
-    public AiBehaviorManager StateMachineMetaData; // StateMachine Meta Data ScriptableObject
-    public ObjectOverlayTextRenderer ObjectOverlayRenderer;
-    public GameEvent AiEvent;
-    public GameObject Target;
-    public Vector3 AiStartingPos;
+    [SerializeField] private Kinematic _kinematic;
+    [SerializeField] private float _rotationSpeed = 200f;
 
+    // Readonly properties
+    public BehaviorFactory BehaviorFactory => _behaviors;
+    public AiBehaviorManager StateMachineMetaData => _stateMachineMetaDatas;
+    public float MaxSpeed => _kinematic.MaxSpeed;
+    public float RotationSpeed => _rotationSpeed;
+
+    // Private fields
     private AiBaseState _currentState;
-    private bool _isStart = false;
-    private AiBaseState _bankedSwitchState = null;
-    private AiBaseState _spawnState;
+    private AiBaseState _bankedSwitchState;
+    private bool _isStarted = false;
     private bool _isPaused = false;
+
+    private Vector2 _velocity;
+    private float _currentRotation;
 
     private void Start()
     {
-        // On start set a _CurrentState
-        AiBaseState initialAiState = _behaviorFactory.GetBehavior(StateMachineMetaData.StartingStateName);
-        _spawnState = _behaviorFactory.GetBehavior("ai_SpawnState");
+        InitializeStateMachine();
+    }
 
-        if (initialAiState != null)
+    private void Update()
+    {
+        if (_currentState == null || _isPaused)
+            return;
+
+        _currentState.UpdateState(this);
+        ApplyMovement();
+
+        if (_objectOverlayRenderer != null)
+            _objectOverlayRenderer.BottomText = _currentState.ToString();
+    }
+
+    private void InitializeStateMachine()
+    {
+        if (BehaviorFactory == null)
         {
-            _currentState = initialAiState;
-            _currentState.EnterState(this);
+            Debug.LogError("BehaviorFactory is missing.");
+            return;
         }
-        else
+
+        _currentState = BehaviorFactory.GetBehavior(StateMachineMetaData?.StartingStateName);
+        if (_currentState == null)
         {
-            Debug.LogError("AI Manager issue Initializing startingStateName was : " + StateMachineMetaData.StartingStateName);
+            Debug.LogError($"Failed to initialize AI state: {StateMachineMetaData?.StartingStateName}");
+            return;
         }
 
-        ObjectOverlayRenderer.TopText = StateMachineMetaData.name;
+        _currentState.EnterState(this);
+        _objectOverlayRenderer.BottomText = _currentState.ToString();
 
-        if (!_isStart && _bankedSwitchState != null)
+        if (!_isStarted && _bankedSwitchState != null)
         {
             _currentState = _bankedSwitchState;
             _currentState.EnterState(this);
         }
 
-        if (StateMachineMetaData.UseSpawnState)
-            PlaySpawnState();
-
-        _isStart = true;
-        AiStartingPos = transform.position;
+        _isStarted = true;
     }
 
-    // Update is called once per frame
-    private void Update()
+    public void SetSteering(Vector2 direction, float speedFactor = 1.0f)
     {
-        if (_isPaused)
-            return;
-
-        _currentState.UpdateState(this); // _CurrentStates Update
+        BrokkrVector2.Vector2 desiredVelocity = direction.normalized * MaxSpeed * Mathf.Clamp01(speedFactor);
+        _velocity = BrokkrVector2.Vector2.Lerp(_velocity, desiredVelocity, 0.1f); // Smooth acceleration
     }
 
-    // Passing Collision Enter to active state
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void ApplyMovement()
     {
-        if (_isPaused)
-            return;
+        transform.position += (Vector3)_velocity * Time.deltaTime;
 
-        _currentState.OnEnter(this, collision);
-    }
-
-    // Passing Collision Enter to active state
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        // Debug.LogError("Trigger entered!");
-        _currentState.OnTriggerEnter(this, other);
-    }
-
-    // Passing Collision Stay to active state
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        if (_isPaused)
-            return;
-
-        _currentState.OnOverlap(this, collision);
-    }
-
-    // Passing Collision Exit to active state
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (_isPaused)
-            return;
-
-        _currentState.OnExit(this, collision);
+        if (_velocity.sqrMagnitude > 0.01f)
+        {
+            float targetAngle = Mathf.Atan2(_velocity.y, _velocity.x) * Mathf.Rad2Deg;
+            _currentRotation = Mathf.LerpAngle(_currentRotation, targetAngle, _rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Euler(0, 0, _currentRotation);
+        }
     }
 
     public void SwitchState(string behaviorName)
     {
-        AiBaseState behavior = _behaviorFactory.GetBehavior(behaviorName);
-
-        if (_isPaused)
+        if (_isPaused || string.IsNullOrEmpty(behaviorName))
             return;
 
-
-        // Check if the behaviorName is null or empty.
-        if (string.IsNullOrEmpty(behaviorName))
+        AiBaseState newState = BehaviorFactory?.GetBehavior(behaviorName);
+        if (newState == null)
         {
-            Debug.Log("BehaviorName is null or empty.");
+            Debug.LogError($"Behavior not found: {behaviorName}");
             return;
         }
 
-        // Check if the behavior is registered before switching to it.
-        if (_behaviorFactory == null)
+        if (!_isStarted)
         {
-            Debug.LogError("BehaviorFactory is not assigned.");
+            _bankedSwitchState = newState;
             return;
         }
 
-        // Check if the retrieved behavior is null.
-        if (behavior == null)
-        {
-            Debug.LogError("Behavior not found: " + behaviorName);
-            return;
-        }
-
-        if (!_isStart)
-        {
-            _bankedSwitchState = behavior;
-        }
-
-        _currentState = behavior;
+        _currentState = newState;
         _currentState.EnterState(this);
-            
     }
 
-    public void SwitchState(ControlState state)
-    {
-        StartCoroutine(DelayedSwitch(state));
-
-        /*switch (state)
-        {
-            case ControlState.RandomWalk:
-                SwitchState("ai_RandomWalkState");
-                break;
-
-            case ControlState.HereAndBack:
-                SwitchState("ai_HereAndBackState");
-                break;
-
-            case ControlState.Stunned:
-                SwitchState("ai_StunnedState");
-                break;
-
-            case ControlState.Null:
-                SwitchState("ai_NullState");
-                break;
-
-            case ControlState.Death:
-                SwitchState("ai_DeathState");
-                break;
-
-            case ControlState.Pause:
-                _isPaused = true;
-                break;
-
-            case ControlState.Resume:
-                _isPaused = false;
-                SwitchState(_currentState.ToString()); // restart current state
-                break;
-        }*/
-    }
-
-    // Launch a coroutine with a GameObject
-    public void LaunchCoroutine(Func<GameObject, IEnumerator> coroutineFunction, GameObject obj)
-    {
-        StartCoroutine(coroutineFunction(obj));
-    }
-
-    public void PlaySpawnState()
-    {
-        if (_spawnState != null)
-        {
-            _currentState = _spawnState;
-            _currentState.EnterState(this);
-        }
-    }
-
-    public void PlayBankedState()
-    {
-        if (_bankedSwitchState != null)
-        {
-            _currentState = _bankedSwitchState;
-            _currentState.EnterState(this);
-            _bankedSwitchState = null;
-            _spawnState = null;
-        }
-    }
-
-    private IEnumerator DelayedSwitch(ControlState state)
-    {
-        yield return new WaitForSeconds(0.6f); // Adjust the delay time as needed
-
-        switch (state)
-        {
-            case ControlState.RandomWalk:
-                SwitchState("ai_RandomWalkState");
-                break;
-
-            case ControlState.HereAndBack:
-                SwitchState("ai_HereAndBackState");
-                break;
-
-            case ControlState.Stunned:
-                SwitchState("ai_StunnedState");
-                break;
-
-            case ControlState.Null:
-                SwitchState("ai_NullState");
-                break;
-
-            case ControlState.Death:
-                SwitchState("ai_DeathState");
-                break;
-
-            case ControlState.Pause:
-                _isPaused = true;
-                break;
-
-            case ControlState.Resume:
-                _isPaused = false;
-                SwitchState(_currentState.ToString()); // restart the current state
-                break;
-        }
-    }
+    // Collision handling
+    private void OnCollisionEnter2D(Collision2D collision) => _currentState?.OnEnter(this, collision);
+    private void OnTriggerEnter2D(Collider2D other) => _currentState?.OnTriggerEnter(this, other);
+    private void OnCollisionStay2D(Collision2D collision) => _currentState?.OnOverlap(this, collision);
+    private void OnCollisionExit2D(Collision2D collision) => _currentState?.OnExit(this, collision);
 }

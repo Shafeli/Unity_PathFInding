@@ -63,7 +63,6 @@ public class ai_Example : AiBaseState
 */
 public abstract class AiBaseState
 {
-    protected bool DebugMode = false; // Debug mode flag
 
     // Called once on switching of states
     public abstract void EnterState(AiStateManager aiStateManager);

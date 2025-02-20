@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "ai_BehaviorFactory", menuName = "Behaviors/ai_BehaviorFactory")]
 public class BehaviorFactory : ScriptableObject
 {
     private Dictionary<string, Type> _behaviorTypes = new Dictionary<string, Type>();

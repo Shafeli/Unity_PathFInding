@@ -3,7 +3,7 @@ using UnityEngine;
 public class ObjectOverlayTextRenderer : MonoBehaviour
 {
 
-    public string TopText = "Object Name";
+    private string TopText = "Object Name";
     public string BottomText = "Object State";
 
     private GUIStyle TextStyle = new();
@@ -15,6 +15,7 @@ public class ObjectOverlayTextRenderer : MonoBehaviour
     void Start()
     {
         TextStyle.normal.textColor = Color.white;
+         TopText = gameObject.name;
     }
 
     private void OnGUI()
@@ -26,8 +27,8 @@ public class ObjectOverlayTextRenderer : MonoBehaviour
         // Offset the text slightly
         screenPosition.y = Screen.height - screenPosition.y;
 
-        // Calculate the position for the text above the object based on the object's transform
-        float objectHeight = transform.localScale.y; // Assuming Y-axis represents the height of the object
+        // Calculate the position for the text 
+        float objectHeight = transform.localScale.y;
         float textYPosition = screenPosition.y - VerticalSpacing - TextHeight - objectHeight;
 
         // Render the first line
