@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
+using Vector3 = UnityEngine.Vector3;
 
 public class GeneralUtility
 {
@@ -10,7 +12,7 @@ public class GeneralUtility
 
         public int sortingOrderDefault;
 
-        WorldTextGenerator(int sortingOrder = kSortingDefault)
+        public WorldTextGenerator(int sortingOrder = kSortingDefault)
         {
             sortingOrderDefault = sortingOrder;
         }
@@ -43,170 +45,32 @@ public class GeneralUtility
             return textMesh;
         }
 
-        public static FunctionUpdater CreateUpdater(Func<string> GetTextFunc, Vector3 localPosition,
-            Transform parentTransform = null)
-        {
-            TextMesh textMesh = CreateWorldText(GetTextFunc(), parentTransform, localPosition); 
-            return FunctionUpdater.Create(() =>
-            {
-                textMesh.text = GetTextFunc();
-                return false;
-            },"WorldTextUpdater");
-        }
     }
 
-    public class FunctionUpdater
+    public class MouseUtility
     {
 
-        
-        // Class to hook Actions into MonoBehaviour
-        private class MonoBehaviourHook : MonoBehaviour
+
+        public static Vector3 GetWorldPosition()
         {
-
-            public Action OnUpdate;
-
-            private void Update()
-            {
-                if (OnUpdate != null) OnUpdate();
-            }
-
+            Vector3 v = GetWorldPositionWithZ(Input.mousePosition, Camera.main);
+            v.z = 0.0f;
+            return v;
         }
 
-        private static List<FunctionUpdater> updaterList; // Holds a reference to all active updaters
-        private static GameObject initGameObject; // Global game object used for initializing class, is destroyed on scene change
-
-        private GameObject gameObject;
-        private string functionName;
-        private bool active;
-        private Func<bool> updateFunc; // Destroy Updater if return true;
-
-        private static void InitIfNeeded()
+        public static Vector3 GetWorldPositionWithZ(Camera worldCamera)
         {
-            if (initGameObject == null)
-            {
-                initGameObject = new GameObject("FunctionUpdater_Global");
-                updaterList = new List<FunctionUpdater>();
-            }
+            return GetWorldPositionWithZ(Input.mousePosition, worldCamera);
         }
 
-        public static FunctionUpdater Create(Action updateFunc)
+        public static Vector3 GetWorldPositionWithZ(Vector3 screenPosition, Camera worldCamera)
         {
-            return Create(() => { updateFunc(); return false; }, "", true, false);
+            // Ensure the Z position is set to a proper value
+            screenPosition.z = worldCamera.nearClipPlane; // Set to the near clipping plane for proper conversion
+
+            // Convert screen position to world position
+            Vector3 worldPosition = worldCamera.ScreenToWorldPoint(screenPosition);
+            return worldPosition;
         }
-
-        public static FunctionUpdater Create(Action updateFunc, string functionName)
-        {
-            return Create(() => { updateFunc(); return false; }, functionName, true, false);
-        }
-
-        public static FunctionUpdater Create(Func<bool> updateFunc)
-        {
-            return Create(updateFunc, "", true, false);
-        }
-
-        public static FunctionUpdater Create(Func<bool> updateFunc, string functionName)
-        {
-            return Create(updateFunc, functionName, true, false);
-        }
-
-        public static FunctionUpdater Create(Func<bool> updateFunc, string functionName, bool active)
-        {
-            return Create(updateFunc, functionName, active, false);
-        }
-
-        public static FunctionUpdater Create(Func<bool> updateFunc, string functionName, bool active, bool stopAllWithSameName)
-        {
-            InitIfNeeded();
-
-            if (stopAllWithSameName)
-            {
-                StopAllUpdatersWithName(functionName);
-            }
-
-            GameObject gameObject = new GameObject("FunctionUpdater Object " + functionName, typeof(MonoBehaviourHook));
-            FunctionUpdater functionUpdater = new FunctionUpdater(gameObject, updateFunc, functionName, active);
-            gameObject.GetComponent<MonoBehaviourHook>().OnUpdate = functionUpdater.Update;
-
-            updaterList.Add(functionUpdater);
-            return functionUpdater;
-        }
-
-        private static void RemoveUpdater(FunctionUpdater funcUpdater)
-        {
-            InitIfNeeded();
-            updaterList.Remove(funcUpdater);
-        }
-
-        public static void DestroyUpdater(FunctionUpdater funcUpdater)
-        {
-            InitIfNeeded();
-            if (funcUpdater != null)
-            {
-                funcUpdater.DestroySelf();
-            }
-        }
-
-        public static void StopUpdaterWithName(string functionName)
-        {
-            InitIfNeeded();
-            foreach (var functionUpdater in updaterList)
-            {
-                if (functionUpdater.functionName == functionName)
-                {
-                    functionUpdater.DestroySelf();
-                    return;
-                }
-            }
-        }
-
-        public static void StopAllUpdatersWithName(string functionName)
-        {
-            InitIfNeeded();
-            for (int i = 0; i < updaterList.Count; i++)
-            {
-                if (updaterList[i].functionName == functionName)
-                {
-                    updaterList[i].DestroySelf();
-                    i--;
-                }
-            }
-        }
-
-        public FunctionUpdater(GameObject gameObject, Func<bool> updateFunc, string functionName, bool active)
-        {
-            this.gameObject = gameObject;
-            this.updateFunc = updateFunc;
-            this.functionName = functionName;
-            this.active = active;
-        }
-
-        public void Pause()
-        {
-            active = false;
-        }
-
-        public void Resume()
-        {
-            active = true;
-        }
-
-        private void Update()
-        {
-            if (!active) return;
-            if (updateFunc())
-            {
-                DestroySelf();
-            }
-        }
-
-        public void DestroySelf()
-        {
-            RemoveUpdater(this);
-            if (gameObject != null)
-            {
-                UnityEngine.Object.Destroy(gameObject);
-            }
-        }
-
     }
 }

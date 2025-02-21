@@ -3,7 +3,7 @@ using UnityEngine;
 public class ObjectOverlayTextRenderer : MonoBehaviour
 {
 
-    private string TopText = "Object Name";
+    private string _topText = "Object Name";
     public string BottomText = "Object State";
 
     private GUIStyle TextStyle = new();
@@ -15,7 +15,7 @@ public class ObjectOverlayTextRenderer : MonoBehaviour
     void Start()
     {
         TextStyle.normal.textColor = Color.white;
-         TopText = gameObject.name;
+         _topText = gameObject.name;
     }
 
     private void OnGUI()
@@ -32,7 +32,7 @@ public class ObjectOverlayTextRenderer : MonoBehaviour
         float textYPosition = screenPosition.y - VerticalSpacing - TextHeight - objectHeight;
 
         // Render the first line
-        GUI.Label(new Rect(screenPosition.x, textYPosition, TextWidth, TextHeight), TopText, TextStyle);
+        GUI.Label(new Rect(screenPosition.x, textYPosition, TextWidth, TextHeight), _topText, TextStyle);
 
         // Render the second line
         GUI.Label(new Rect(screenPosition.x, textYPosition + VerticalSpacing, TextWidth, TextHeight), BottomText,

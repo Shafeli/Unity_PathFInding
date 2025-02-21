@@ -35,7 +35,7 @@ public class BrokkrVector2
         }
 
         public static Vector2 operator -(Vector2 v) => new Vector2(-v.m_x, -v.m_y);
-        public static bool operator ==(Vector2 a, Vector2 b) => (a.m_x == b.m_x && a.m_y == b.m_y);
+        public static bool operator ==(Vector2 a, Vector2 b) => (a.m_x.Equals(b.m_x) && a.m_y.Equals(b.m_y));
         public static bool operator !=(Vector2 a, Vector2 b) => !(a == b);
 
         public override bool Equals(object obj)
