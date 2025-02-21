@@ -35,9 +35,9 @@ public class Grid
         _gridCells = new int[width, height];
 
         int counter = 0;
-        for (int x = 0; x < _gridCells.GetLength(0); ++x)
+        for (int y = 0; y < _gridCells.GetLength(1); ++y)
         {
-            for (int y = 0; y < _gridCells.GetLength(1); ++y)
+            for (int x = 0; x < _gridCells.GetLength(0); ++x)
             {
                 Cell tempCell = new Cell
                 {
@@ -60,7 +60,7 @@ public class Grid
     {
         foreach (var cell in _cells)
         {
-            string textStr = /*"Index: " + cell.CellIndex + */"\nValue: " + cell.Value;
+            string textStr = "Index: " + cell.CellIndex + "\nValue: " + cell.Value;
 
             if (cell.TextMesh != null)
                 cell.TextMesh.text = textStr;
@@ -129,7 +129,7 @@ public class Grid
         return worldPosition;
     }
 
-    private int CellIndex(int x, int y)
+    public int CellIndex(int x, int y)
     {
         return y * _width + x;
     }
