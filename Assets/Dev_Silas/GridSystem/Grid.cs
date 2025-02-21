@@ -57,10 +57,11 @@ public class Grid
     }
 
     public void UpdateGrid()
-    {
+    {   
         foreach (var cell in _cells)
         {
-            string textStr = "Index: " + cell.CellIndex + "\nValue: " + cell.Value;
+            // string textStr = "Index: " + cell.CellIndex + "\nValue: " + cell.Value;
+            string textStr = "Value: " + cell.Value;
 
             if (cell.TextMesh != null)
                 cell.TextMesh.text = textStr;
@@ -77,7 +78,18 @@ public class Grid
         y = Mathf.FloorToInt((localPosition.y + (_height * _cellSize) / 2f) / _cellSize);
     }
 
+    public int GetCellValue(int x, int y)
+    {
+        var cell = _cells[CellIndex(x,y)];
+        return cell.Value;
+    }
 
+    public int GetCellValue(Vector3 worldPosition)
+    {
+        int x, y = 0;
+        XY(worldPosition, out x, out y);
+        return GetCellValue(x, y);
+    }
 
     public void SetCellValue(int x, int y, int value)
     {
@@ -112,6 +124,16 @@ public class Grid
         // Top and Bottom
         Debug.DrawLine(WorldPosition(0, _height), WorldPosition(_width, _height), Color.white, 100f);
         Debug.DrawLine(WorldPosition(_width, 0), WorldPosition(_width, _height), Color.white, 100f);
+    }
+
+    public void ToggleValueText(bool value)
+    {
+
+        foreach (var cell in _cells)
+        {
+            if (cell.TextMesh != null)
+                cell.TextMesh.gameObject.SetActive(value);
+        }
     }
 
     // Private

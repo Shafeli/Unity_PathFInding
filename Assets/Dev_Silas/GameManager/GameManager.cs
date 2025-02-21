@@ -6,11 +6,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int _worldGridMapWidth = 4;
     [SerializeField] private int _worldGridMapHeight = 4;
     [SerializeField] private float _worldGridMapCellSize = 10.0f;
+    [SerializeField] public bool _debugWorldGridLine = true;
+    [SerializeField] private bool _debugWorldGridValue = true;
 
     private Grid _grid;
     void Start()
     {
         _grid = new Grid(_worldGridMapWidth, _worldGridMapHeight, _worldGridMapCellSize, transform.position, gameObject);
+        _grid.ToggleValueText(_debugWorldGridValue);
 
     }
 
@@ -29,7 +32,11 @@ public class GameManager : MonoBehaviour
             Debug.Log("Mouse Click Position was over index: " + _grid.CellIndex(x, y));
         }
 
+        
+        if (_debugWorldGridLine)
+            _grid.DrawDebugLines();
+
         _grid.UpdateGrid();
-        _grid.DrawDebugLines();
+        
     }
 }
