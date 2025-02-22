@@ -3,14 +3,14 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 
-public class Grid
+public class Grid<T>
 {
     class Cell
     {
         public TextMesh TextMesh;
         public int CellIndex;
         public int X, Y;
-        public int Value = 0;
+        public T UserValue;
     }
 
     private GameObject _pOwner;
@@ -19,8 +19,6 @@ public class Grid
     private int _height;
     private float _cellSize;
     private Vector3 _centerPosition;
-    private int[,] _gridCells;
-
 
     // Public
     ////////////////////////////////////////////////////
@@ -32,16 +30,16 @@ public class Grid
         _cellSize = cellSize;
         _centerPosition = centerPosition; // Store the center position
         _cells = new List<Cell>(width * height);
-        _gridCells = new int[width, height];
+        int[,] tempGrid = new int[width, height];
 
         int counter = 0;
-        for (int y = 0; y < _gridCells.GetLength(1); ++y)
+        for (int y = 0; y < tempGrid.GetLength(1); ++y)
         {
-            for (int x = 0; x < _gridCells.GetLength(0); ++x)
+            for (int x = 0; x < tempGrid.GetLength(0); ++x)
             {
                 Cell tempCell = new Cell
                 {
-                    TextMesh = GeneralUtility.WorldTextGenerator.CreateWorldText(_gridCells[x, y].ToString(), pOwner.transform,
+                    TextMesh = GeneralUtility.WorldTextGenerator.CreateWorldText(tempGrid[x, y].ToString(), pOwner.transform,
                         WorldPosition(x, y) + new Vector3(_cellSize, _cellSize) * 0.5f, 10, Color.white, TextAnchor.MiddleCenter),
                     CellIndex = counter,
                     X = x,
@@ -60,11 +58,13 @@ public class Grid
     {   
         foreach (var cell in _cells)
         {
-            // string textStr = "Index: " + cell.CellIndex + "\nValue: " + cell.Value;
-            string textStr = "Value: " + cell.Value;
 
             if (cell.TextMesh != null)
+            {
+                // string textStr = "Index: " + cell.CellIndex + "\nValue: " + cell.Value;
+                string textStr = "Value: " + cell.UserValue.ToString();
                 cell.TextMesh.text = textStr;
+            }
         }
     }
 
@@ -78,29 +78,28 @@ public class Grid
         y = Mathf.FloorToInt((localPosition.y + (_height * _cellSize) / 2f) / _cellSize);
     }
 
-    public int GetCellValue(int x, int y)
+    public T GetCellValue(int x, int y)
     {
         var cell = _cells[CellIndex(x,y)];
-        return cell.Value;
+        return cell.UserValue;
     }
 
-    public int GetCellValue(Vector3 worldPosition)
+    public T GetCellValue(Vector3 worldPosition)
     {
         int x, y = 0;
         XY(worldPosition, out x, out y);
         return GetCellValue(x, y);
     }
 
-    public void SetCellValue(int x, int y, int value)
+    public void SetCellValue(int x, int y, T value)
     {
         if (x >= 0 && y >= 0 && x < _width && y < _height)
         {
-            _gridCells[x, y] = value;
-            _cells[CellIndex(x, y)].Value = value;
+            _cells[CellIndex(x, y)].UserValue = value;
         }
     }
 
-    public void SetCellValue(Vector3 worldPosition, int value)
+    public void SetCellValue(Vector3 worldPosition, T value)
     {
         int x, y = 0;
         XY(worldPosition, out x, out y);

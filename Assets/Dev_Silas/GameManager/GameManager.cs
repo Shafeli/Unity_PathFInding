@@ -9,10 +9,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] public bool _debugWorldGridLine = true;
     [SerializeField] private bool _debugWorldGridValue = true;
 
-    private Grid _grid;
+    private Grid<int> _grid;
     void Start()
     {
-        _grid = new Grid(_worldGridMapWidth, _worldGridMapHeight, _worldGridMapCellSize, transform.position, gameObject);
+        _grid = new Grid<int>(_worldGridMapWidth, _worldGridMapHeight, _worldGridMapCellSize, transform.position, gameObject);
         _grid.ToggleValueText(_debugWorldGridValue);
 
     }
