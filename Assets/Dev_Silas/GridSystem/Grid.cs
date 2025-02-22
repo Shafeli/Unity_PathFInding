@@ -62,8 +62,11 @@ public class Grid<T>
             if (cell.TextMesh != null)
             {
                 // string textStr = "Index: " + cell.CellIndex + "\nValue: " + cell.Value;
-                string textStr = "Value: " + cell.UserValue.ToString();
-                cell.TextMesh.text = textStr;
+                if (cell.UserValue != null)
+                {
+                    string textStr = "Value: " + cell.UserValue.ToString();
+                    cell.TextMesh.text = textStr;
+                }
             }
         }
     }

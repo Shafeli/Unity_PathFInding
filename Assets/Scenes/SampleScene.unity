@@ -553,7 +553,6 @@ MonoBehaviour:
   _worldGridMapWidth: 20
   _worldGridMapHeight: 12
   _worldGridMapCellSize: 5
-  _debugWorldGridLine: 1
   _debugWorldGridValue: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
