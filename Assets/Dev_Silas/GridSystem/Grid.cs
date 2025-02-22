@@ -73,7 +73,7 @@ public class Grid<T>
         // Offset the world position by the center position to get local grid coordinates
         Vector3 localPosition = worldPosition + _centerPosition;
 
-        // Calculate the grid coordinates based on the cell size
+        // Grid coordinates based on the cell size
         x = Mathf.FloorToInt((localPosition.x + (_width * _cellSize) / 2f) / _cellSize);
         y = Mathf.FloorToInt((localPosition.y + (_height * _cellSize) / 2f) / _cellSize);
     }
