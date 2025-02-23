@@ -65,6 +65,20 @@ public class GameManager : MonoBehaviour
             }*/
         }
 
+        if (Input.GetMouseButtonDown(1))
+        {
+            int x, y;
+            Vector3 mousePosition = GeneralUtility.MouseUtility.GetWorldPosition();
+            _pathFindingGrid.XY(mousePosition, out x, out y);
+
+            var cellValue = _pathFindingGrid.GetCellValue(x, y);
+            cellValue.Walkable = false;
+
+            var pathCell = _pathFindingGrid.GetCell(x, y);
+            pathCell.TextMesh.gameObject.SetActive(false);
+
+        }
+
         _pathFindingGrid.UpdateGrid();
 
     }
@@ -93,8 +107,7 @@ public class GameManager : MonoBehaviour
 
         if (_debugDrawPath)
         {
-            if (_bankedVecPath != null &&
-                _bankedVecPath.Count > 1) 
+            if (_bankedVecPath != null &&  _bankedVecPath.Count > 1) 
             {
                 for (int i = 0; i < _bankedVecPath.Count - 1; i++) // Loop up to the second-to-last cell
                 {
@@ -165,6 +178,11 @@ public class GameManager : MonoBehaviour
                 {
                     continue;
                 }
+                if (!neighbour.Walkable)
+                {
+                    _closedCells.Add(neighbour);
+                    continue;
+                }
 
                 // Get the distance between the current cell and the neighbour
                 int tentativeGCost = currentCell._gCost + CalculateDistanceCost(currentCell, neighbour);
@@ -212,6 +230,8 @@ public class GameManager : MonoBehaviour
             // Check ifis inside 
             if (IsInsideGrid(checkX, checkY))
             {
+
+
                 // Add the valid neighbor to the list
                 neighbours.Add(_pathFindingGrid.GetCellValue(checkX, checkY));
             }

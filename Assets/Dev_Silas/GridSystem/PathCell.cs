@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PathCell
 {
+    public bool Walkable;
     public int _gCost;
     public int _hCost;
     public int _fCost;
@@ -16,6 +17,7 @@ public class PathCell
         _grid = grid;
         _x = x;
         _y = y;
+        Walkable = true;
     }
 
     public void CalculateFCost()

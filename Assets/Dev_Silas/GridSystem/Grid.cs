@@ -82,6 +82,19 @@ public class Grid<T>
         y = Mathf.FloorToInt((localPosition.y + (Height * _cellSize) / 2f) / _cellSize);
     }
 
+    public Cell GetCell(int x, int y)
+    {
+        var cell = Cells[CellIndex(x, y)];
+        return cell;
+    }
+
+    public Cell GetCell(Vector3 worldPosition)
+    {
+        int x, y = 0;
+        XY(worldPosition, out x, out y);
+        return GetCell(x, y);
+    }
+
     public T GetCellValue(int x, int y)
     {
         var cell = Cells[CellIndex(x,y)];

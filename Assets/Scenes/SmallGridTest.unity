@@ -201,7 +201,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.060742237, g: 0.06280159, b: 0.066037714, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -422,7 +422,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 1340399810200973776, guid: e5007f9643933f545aadd1e958435aa1, type: 3}
-  m_Color: {r: 0.098039225, g: 0.10588236, b: 0.10980393, a: 1}
+  m_Color: {r: 1, g: 0.21960786, b: 0.18823531, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -553,7 +553,7 @@ MonoBehaviour:
   _worldGridMapWidth: 20
   _worldGridMapHeight: 12
   _worldGridMapCellSize: 2
-  _debugWorldGridValue: 0
+  _debugWorldGridValue: 1
   _debugWorldGridLines: 1
   _debugDrawPath: 1
 --- !u!1660057539 &9223372036854775807
