@@ -81,7 +81,7 @@ public class GameManager : MonoBehaviour
         List<Vector3> vPath = new List<Vector3>();
         foreach (var cell in path)
         {
-            vPath.Add(_pathFindingGrid.WorldPosition(cell._x, cell._y));
+            vPath.Add(_pathFindingGrid.WorldPosition(cell._x, cell._y) + new Vector3(_worldGridMapCellSize, _worldGridMapCellSize) * 0.5f);
         }
 
         return vPath;
