@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 
 public class Grid<T>
 {
-    class Cell
+    public class Cell
     {
         public TextMesh TextMesh;
         public int CellIndex;
@@ -13,10 +13,11 @@ public class Grid<T>
         public T UserValue;
     }
 
+    private List<Cell> Cells { get; }
+    private int Width { get; }
+    private int Height { get; }
+
     private GameObject _pOwner;
-    private List<Cell> _cells;
-    private int _width;
-    private int _height;
     private float _cellSize;
     private Vector3 _centerPosition;
 
@@ -25,11 +26,11 @@ public class Grid<T>
     
     public Grid(int width, int height, float cellSize, Vector3 centerPosition, GameObject pOwner)
     {
-        _width = width;
-        _height = height;
+        Width = width;
+        Height = height;
         _cellSize = cellSize;
         _centerPosition = centerPosition; // Store the center position
-        _cells = new List<Cell>(width * height);
+        Cells = new List<Cell>(width * height);
         int[,] tempGrid = new int[width, height];
 
         int counter = 0;
@@ -45,7 +46,7 @@ public class Grid<T>
                     X = x,
                     Y = y
                 };
-                _cells.Add(tempCell);
+                Cells.Add(tempCell);
                 ++counter;
             }
         }
@@ -56,7 +57,7 @@ public class Grid<T>
 
     public void UpdateGrid()
     {   
-        foreach (var cell in _cells)
+        foreach (var cell in Cells)
         {
 
             if (cell.TextMesh != null)
@@ -64,7 +65,7 @@ public class Grid<T>
                 // string textStr = "Index: " + cell.CellIndex + "\nValue: " + cell.Value;
                 if (cell.UserValue != null)
                 {
-                    string textStr = "Value: " + cell.UserValue.ToString();
+                    string textStr = cell.UserValue.ToString();
                     cell.TextMesh.text = textStr;
                 }
             }
@@ -74,16 +75,16 @@ public class Grid<T>
     public void XY(Vector3 worldPosition, out int x, out int y)
     {
         // Offset the world position by the center position to get local grid coordinates
-        Vector3 localPosition = worldPosition + _centerPosition;
+        Vector3 localPosition = worldPosition - _centerPosition;
 
         // Grid coordinates based on the cell size
-        x = Mathf.FloorToInt((localPosition.x + (_width * _cellSize) / 2f) / _cellSize);
-        y = Mathf.FloorToInt((localPosition.y + (_height * _cellSize) / 2f) / _cellSize);
+        x = Mathf.FloorToInt((localPosition.x + (Width * _cellSize) / 2f) / _cellSize);
+        y = Mathf.FloorToInt((localPosition.y + (Height * _cellSize) / 2f) / _cellSize);
     }
 
     public T GetCellValue(int x, int y)
     {
-        var cell = _cells[CellIndex(x,y)];
+        var cell = Cells[CellIndex(x,y)];
         return cell.UserValue;
     }
 
@@ -96,9 +97,9 @@ public class Grid<T>
 
     public void SetCellValue(int x, int y, T value)
     {
-        if (x >= 0 && y >= 0 && x < _width && y < _height)
+        if (x >= 0 && y >= 0 && x < Width && y < Height)
         {
-            _cells[CellIndex(x, y)].UserValue = value;
+            Cells[CellIndex(x, y)].UserValue = value;
         }
     }
 
@@ -112,49 +113,63 @@ public class Grid<T>
     public void DrawDebugLines()
     {
         // Draw vertical lines
-        for (int x = 0; x <= _width; ++x)
+        for (int x = 0; x <= Width; ++x)
         {
-            Debug.DrawLine(WorldPosition(x, 0), WorldPosition(x, _height), Color.white, 100f);
+            Debug.DrawLine(WorldPosition(x, 0), WorldPosition(x, Height), Color.white, 100f);
         }
 
         // Draw horizontal lines
-        for (int y = 0; y <= _height; ++y)
+        for (int y = 0; y <= Height; ++y)
         {
-            Debug.DrawLine(WorldPosition(0, y), WorldPosition(_width, y), Color.white, 100f);
+            Debug.DrawLine(WorldPosition(0, y), WorldPosition(Width, y), Color.white, 100f);
         }
 
         // Top and Bottom
-        Debug.DrawLine(WorldPosition(0, _height), WorldPosition(_width, _height), Color.white, 100f);
-        Debug.DrawLine(WorldPosition(_width, 0), WorldPosition(_width, _height), Color.white, 100f);
+        Debug.DrawLine(WorldPosition(0, Height), WorldPosition(Width, Height), Color.white, 100f);
+        Debug.DrawLine(WorldPosition(Width, 0), WorldPosition(Width, Height), Color.white, 100f);
     }
 
     public void ToggleValueText(bool value)
     {
 
-        foreach (var cell in _cells)
+        foreach (var cell in Cells)
         {
             if (cell.TextMesh != null)
                 cell.TextMesh.gameObject.SetActive(value);
         }
     }
 
-    // Private
-    ////////////////////////////////////////////////////
-
-    private Vector3 WorldPosition(int x, int y)
+    public List<Cell> GetCellsList()
     {
-        // Offset to center the grid
-        float offsetX = (x - _width / 2f) * _cellSize; // Horizontal offset
-        float offsetY = (y - _height / 2f) * _cellSize; // Vertical offset
-
-        // Combine the offsets with the center
-        Vector3 worldPosition = new Vector3(offsetX, offsetY, 0) + _centerPosition;
-
-        return worldPosition;
+        return Cells;
     }
 
     public int CellIndex(int x, int y)
     {
-        return y * _width + x;
+        return y * Width + x;
     }
+
+    public int GetWidth()
+    {
+        return Width;
+    }
+
+    public int GetHeight()
+    {
+        return Height;
+    }
+
+    // Private
+    ////////////////////////////////////////////////////
+
+    public Vector3 WorldPosition(int x, int y)
+    {
+        // Offset to center the grid; adjust Y to start from the bottom left
+        float offsetX = (x - Width * 0.5f) * _cellSize;
+        float offsetY = (y - Height * 0.5f) * _cellSize;
+
+        return new Vector3(offsetX, offsetY, 0) + _centerPosition;
+    }
+
+
 }
