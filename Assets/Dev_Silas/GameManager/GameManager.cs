@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using NUnit.Framework;
 using UnityEngine;
@@ -13,12 +15,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float _worldGridMapCellSize = 10.0f;
     [SerializeField] private bool _debugWorldGridValue = true;
     [SerializeField] private bool _debugWorldGridLines = true;
+    [SerializeField] private bool _debugDrawPath = true;
 
     // private Grid<int> _grid;
 
     private List<PathCell> _openCells;
     private List<PathCell> _closedCells;
     private Grid<PathCell> _pathFindingGrid;
+
+    private List<Vector3> _bankedVecPath;
 
     void Start()
     {
@@ -47,17 +52,17 @@ public class GameManager : MonoBehaviour
             //_grid.XY(mousePosition, out x, out y);
             _pathFindingGrid.XY(mousePosition, out x, out y);
             //Debug.Log("Mouse Click Position was over index: " + _grid.CellIndex(x, y));
-            var path = FindPath(_pathFindingGrid.WorldPosition(0,0), mousePosition);
+            _bankedVecPath = FindPath(_pathFindingGrid.WorldPosition(0,0), mousePosition);
 
-            if (path != null && path.Count > 1) // Ensure there are at least two points to draw lines
+/*            if (_bankedVecPath != null && _bankedVecPath.Count > 1)
             {
-                for (int i = 0; i < path.Count - 1; i++) // Loop up to the second-to-last cell
+                for (int i = 0; i < _bankedVecPath.Count - 1; i++)
                 {
-                    Vector3 start = path[i];
-                    Vector3 end = path[i + 1];
+                    Vector3 start = _bankedVecPath[i];
+                    Vector3 end = _bankedVecPath[i + 1];
                     Debug.DrawLine(start, end, Color.green, 100.0f);
                 }
-            }
+            }*/
         }
 
         _pathFindingGrid.UpdateGrid();
@@ -66,8 +71,41 @@ public class GameManager : MonoBehaviour
 
     void OnGUI()
     {
+        if (_debugWorldGridValue)
+        {
+            var gridCellObject = _pathFindingGrid.GetCellsList().First().TextMesh.gameObject;
+            if (!gridCellObject.activeSelf)
+            {
+                _pathFindingGrid.ToggleValueText(true);
+            }
+        }
+        else
+        {
+            var gridCellObject = _pathFindingGrid.GetCellsList().First().TextMesh.gameObject;
+            if (gridCellObject.activeSelf)
+            {
+                _pathFindingGrid.ToggleValueText(false);
+            }
+        }
+
         if (_debugWorldGridLines)
             _pathFindingGrid.DrawDebugLines();
+
+        if (_debugDrawPath)
+        {
+            if (_bankedVecPath != null &&
+                _bankedVecPath.Count > 1) 
+            {
+                for (int i = 0; i < _bankedVecPath.Count - 1; i++) // Loop up to the second-to-last cell
+                {
+                    Vector3 start = _bankedVecPath[i];
+                    Vector3 end = _bankedVecPath[i + 1];
+                    Debug.DrawLine(start, end, Color.green, 0.5f);
+                }
+
+                _bankedVecPath.Clear();
+            }
+        }
     }
 
     public List<Vector3> FindPath(Vector3 startWorld, Vector3 endWorld)
