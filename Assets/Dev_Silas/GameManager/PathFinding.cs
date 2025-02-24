@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
@@ -123,6 +124,25 @@ public class PathFinding
         return null; // Return null no path is found
     }
 
+    public List<Grid<PathCell>.Cell> GetCellList()
+    {
+        return PathFindingGrid.GetCellsList();
+    }
+
+    public PathCell GetCellValue(int x, int y)
+    {
+        return PathFindingGrid.GetCellValue(x, y);
+    }
+
+    public void XY(Vector3 worldPosition, out int x, out int y)
+    {
+        PathFindingGrid.XY(worldPosition, out x, out y);
+    }
+
+    public Vector3 WorldPosition(int x, int y)
+    {
+        return PathFindingGrid.WorldPosition(x, y);
+    }
     // Private
     ////////////////////////////////////////////////////
 
