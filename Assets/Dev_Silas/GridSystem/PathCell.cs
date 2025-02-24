@@ -3,6 +3,7 @@ using UnityEngine;
 public class PathCell
 {
     public bool Walkable;
+    public int Weight { get; set; } = 1;
     public int _gCost;
     public int _hCost;
     public int _fCost;

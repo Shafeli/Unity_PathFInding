@@ -24,7 +24,7 @@ public class Grid<T>
     // Public
     ////////////////////////////////////////////////////
     
-    public Grid(int width, int height, float cellSize, Vector3 centerPosition, GameObject pOwner)
+    public Grid(int width, int height, float cellSize, Vector3 centerPosition, GameObject pOwner, bool deBugGameObjects = true)
     {
         Width = width;
         Height = height;
@@ -34,20 +34,44 @@ public class Grid<T>
         int[,] tempGrid = new int[width, height];
 
         int counter = 0;
-        for (int y = 0; y < tempGrid.GetLength(1); ++y)
+
+        if (deBugGameObjects)
         {
-            for (int x = 0; x < tempGrid.GetLength(0); ++x)
+            for (int y = 0; y < tempGrid.GetLength(1); ++y)
             {
-                Cell tempCell = new Cell
+                for (int x = 0; x < tempGrid.GetLength(0); ++x)
                 {
-                    TextMesh = GeneralUtility.WorldTextGenerator.CreateWorldText(tempGrid[x, y].ToString(), pOwner.transform,
-                        WorldPosition(x, y) + new Vector3(_cellSize, _cellSize) * 0.5f, 10, Color.white, TextAnchor.MiddleCenter),
-                    CellIndex = counter,
-                    X = x,
-                    Y = y
-                };
-                Cells.Add(tempCell);
-                ++counter;
+                    Cell tempCell = new Cell
+                    {
+                        TextMesh = GeneralUtility.WorldTextGenerator.CreateWorldText(tempGrid[x, y].ToString(),
+                            pOwner.transform,
+                            WorldPosition(x, y) + new Vector3(_cellSize, _cellSize) * 0.5f, 10, Color.white,
+                            TextAnchor.MiddleCenter),
+                        CellIndex = counter,
+                        X = x,
+                        Y = y
+                    };
+                    Cells.Add(tempCell);
+                    ++counter;
+                }
+            }
+        }
+        else
+        {
+            for (int y = 0; y < tempGrid.GetLength(1); ++y)
+            {
+                for (int x = 0; x < tempGrid.GetLength(0); ++x)
+                {
+                    Cell tempCell = new Cell
+                    {
+                        TextMesh = null,
+                        CellIndex = counter,
+                        X = x,
+                        Y = y
+                    };
+                    Cells.Add(tempCell);
+                    ++counter;
+                }
             }
         }
 
@@ -172,9 +196,6 @@ public class Grid<T>
         return Height;
     }
 
-    // Private
-    ////////////////////////////////////////////////////
-
     public Vector3 WorldPosition(int x, int y)
     {
         // Offset to center the grid; adjust Y to start from the bottom left
@@ -183,6 +204,8 @@ public class Grid<T>
 
         return new Vector3(offsetX, offsetY, 0) + _centerPosition;
     }
+    // Private
+    ////////////////////////////////////////////////////
 
 
 }
