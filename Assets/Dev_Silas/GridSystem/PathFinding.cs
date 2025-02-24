@@ -1,136 +1,56 @@
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using NUnit.Framework;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 
-public class GameManager : MonoBehaviour
+public class PathFinding
 {
     private const int kMoveStraightCost = 10;
     private const int kMoveDiagonalCost = 14; // 10 * sqrt(2)
-
-    [SerializeField] private int _worldGridMapWidth = 4;
-    [SerializeField] private int _worldGridMapHeight = 4;
-    [SerializeField] private float _worldGridMapCellSize = 10.0f;
-
-    [SerializeField] private bool _debugWorldGridValue = true;
-    [SerializeField] private bool _debugWorldGridLines = true;
-    [SerializeField] private bool _debugDrawPath = true;
-
-    // private Grid<int> _grid;
+    private float _worldGridMapCellSize = 10.0f;
 
     private List<PathCell> _openCells;
     private List<PathCell> _closedCells;
-    private Grid<PathCell> _pathFindingGrid;
+    private Grid<PathCell> PathFindingGrid { get; }
 
-    private List<Vector3> _bankedVecPath;
-
-    void Start()
+    public PathFinding
+    (
+        int _worldGridMapWidth,
+        int _worldGridMapHeight,
+        float _worldGridMapCellSize,
+        Vector3 position,
+        GameObject gameObject,
+        bool _debugWorldGridValue
+    )
     {
-        _pathFindingGrid = new Grid<PathCell>(_worldGridMapWidth, _worldGridMapHeight, _worldGridMapCellSize,
-            transform.position, gameObject, _debugWorldGridValue);
+        PathFindingGrid = new Grid<PathCell>(_worldGridMapWidth, _worldGridMapHeight, _worldGridMapCellSize,
+            position, gameObject, _debugWorldGridValue);
 
-        _pathFindingGrid.ToggleValueText(_debugWorldGridValue);
-        var cells = _pathFindingGrid.GetCellsList();
+        PathFindingGrid.ToggleValueText(_debugWorldGridValue);
+        var cells = PathFindingGrid.GetCellsList();
 
         foreach (var cell in cells)
         {
-            cell.UserValue = new PathCell(_pathFindingGrid, cell.X, cell.Y);
+            cell.UserValue = new PathCell(PathFindingGrid, cell.X, cell.Y);
         }
     }
 
-    void Update()
+    public void UpdateGrid()
     {
-
-        if (Input.GetMouseButtonDown(0))
-        {
-
-            //_grid.SetCellValue(GeneralUtility.MouseUtility.GetWorldPosition(), 500);
-
-            int x, y;
-            Vector3 mousePosition = GeneralUtility.MouseUtility.GetWorldPosition();
-            //_grid.XY(mousePosition, out x, out y);
-            _pathFindingGrid.XY(mousePosition, out x, out y);
-            //Debug.Log("Mouse Click Position was over index: " + _grid.CellIndex(x, y));
-            _bankedVecPath = FindPath(_pathFindingGrid.WorldPosition(0,0), mousePosition);
-
-/*            if (_bankedVecPath != null && _bankedVecPath.Count > 1)
-            {
-                for (int i = 0; i < _bankedVecPath.Count - 1; i++)
-                {
-                    Vector3 start = _bankedVecPath[i];
-                    Vector3 end = _bankedVecPath[i + 1];
-                    Debug.DrawLine(start, end, Color.green, 100.0f);
-                }
-            }*/
-        }
-
-        if (Input.GetMouseButtonDown(1))
-        {
-            int x, y;
-            Vector3 mousePosition = GeneralUtility.MouseUtility.GetWorldPosition();
-            _pathFindingGrid.XY(mousePosition, out x, out y);
-
-            var cellValue = _pathFindingGrid.GetCellValue(x, y);
-            cellValue.Walkable = false;
-
-            var pathCell = _pathFindingGrid.GetCell(x, y);
-            if (pathCell.TextMesh != null)
-                pathCell.TextMesh.gameObject.SetActive(false);
-
-        }
-
-        _pathFindingGrid.UpdateGrid();
-
+        PathFindingGrid.UpdateGrid();
     }
 
-    void OnGUI()
+    public Grid<PathCell>.Cell GetCell(int x, int y)
     {
-        if (_pathFindingGrid.GetCellsList().First().TextMesh != null)
-        {
-            if (_debugWorldGridValue)
-            {
-                var gridCellObject = _pathFindingGrid.GetCellsList().First().TextMesh.gameObject;
-                if (!gridCellObject.activeSelf)
-                {
-                    _pathFindingGrid.ToggleValueText(true);
-                }
-            }
-            else
-            {
-                var gridCellObject = _pathFindingGrid.GetCellsList().First().TextMesh.gameObject;
-                if (gridCellObject.activeSelf)
-                {
-                    _pathFindingGrid.ToggleValueText(false);
-                }
-            }
-        }
-
-        if (_debugWorldGridLines)
-            _pathFindingGrid.DrawDebugLines();
-
-        if (_debugDrawPath)
-        {
-            if (_bankedVecPath != null &&  _bankedVecPath.Count > 1) 
-            {
-                for (int i = 0; i < _bankedVecPath.Count - 1; i++) // Loop up to right before last cell
-                {
-                    Vector3 start = _bankedVecPath[i];
-                    Vector3 end = _bankedVecPath[i + 1];
-                    Debug.DrawLine(start, end, Color.red, 0.5f);
-                }
-
-                _bankedVecPath.Clear();
-            }
-        }
+        return PathFindingGrid.GetCell(x, y);
     }
 
+    public void ToggleValueText(bool isOn)
+    {
+        PathFindingGrid.ToggleValueText(isOn);
+    }
     public List<Vector3> FindPath(Vector3 startWorld, Vector3 endWorld)
     {
-        _pathFindingGrid.XY(startWorld, out int startX, out int startY);
-        _pathFindingGrid.XY(endWorld, out int endX, out int endY);
+        PathFindingGrid.XY(startWorld, out int startX, out int startY);
+        PathFindingGrid.XY(endWorld, out int endX, out int endY);
 
         List<PathCell> path = FindPath(startX, startY, endX, endY);
         if (path == null) return null;
@@ -138,7 +58,7 @@ public class GameManager : MonoBehaviour
         List<Vector3> vPath = new List<Vector3>();
         foreach (var cell in path)
         {
-            vPath.Add(_pathFindingGrid.WorldPosition(cell._x, cell._y) + new Vector3(_worldGridMapCellSize, _worldGridMapCellSize) * 0.5f);
+            vPath.Add(PathFindingGrid.WorldPosition(cell._x, cell._y) + new Vector3(_worldGridMapCellSize, _worldGridMapCellSize) * 0.5f);
         }
 
         return vPath;
@@ -146,12 +66,12 @@ public class GameManager : MonoBehaviour
     }
     public List<PathCell> FindPath(int startX, int startY, int endX, int endY)
     {
-        PathCell startCell = _pathFindingGrid.GetCellValue(startX, startY);
+        PathCell startCell = PathFindingGrid.GetCellValue(startX, startY);
 
         _openCells = new List<PathCell> { startCell };
         _closedCells = new List<PathCell>();
 
-        foreach (var cell in _pathFindingGrid.GetCellsList())
+        foreach (var cell in PathFindingGrid.GetCellsList())
         {
             cell.UserValue._gCost = int.MaxValue;
             cell.UserValue.CalculateFCost();
@@ -161,13 +81,13 @@ public class GameManager : MonoBehaviour
 
 
         startCell._gCost = 0;
-        startCell._hCost = CalculateDistanceCost(startCell, _pathFindingGrid.GetCellValue(endX, endY));
+        startCell._hCost = CalculateDistanceCost(startCell, PathFindingGrid.GetCellValue(endX, endY));
         startCell.CalculateFCost();
 
         while (_openCells.Count > 0)
         {
             PathCell currentCell = GetLowestFCostCell();
-            if (currentCell == _pathFindingGrid.GetCellValue(endX, endY)) // if reached the end
+            if (currentCell == PathFindingGrid.GetCellValue(endX, endY)) // if reached the end
             {
                 return CalculatePath(currentCell);
             }
@@ -199,7 +119,7 @@ public class GameManager : MonoBehaviour
                     // Set the last cell to the current cell
                     neighbour.LastCell = currentCell;
                     neighbour._gCost = tentativeGCost;
-                    neighbour._hCost = CalculateDistanceCost(neighbour, _pathFindingGrid.GetCellValue(endX, endY));
+                    neighbour._hCost = CalculateDistanceCost(neighbour, PathFindingGrid.GetCellValue(endX, endY));
                     neighbour.CalculateFCost();
 
                     // Check if the neighbour
@@ -213,6 +133,31 @@ public class GameManager : MonoBehaviour
         }
 
         return null; // Return null no path is found
+    }
+
+    public List<Grid<PathCell>.Cell> GetCellList()
+    {
+        return PathFindingGrid.GetCellsList();
+    }
+
+    public PathCell GetCellValue(int x, int y)
+    {
+        return PathFindingGrid.GetCellValue(x, y);
+    }
+
+    public void XY(Vector3 worldPosition, out int x, out int y)
+    {
+        PathFindingGrid.XY(worldPosition, out x, out y);
+    }
+
+    public Vector3 WorldPosition(int x, int y)
+    {
+        return PathFindingGrid.WorldPosition(x, y);
+    }
+
+    public void DrawDebugLines()
+    {
+        PathFindingGrid.DrawDebugLines();
     }
 
     // Private
@@ -242,17 +187,18 @@ public class GameManager : MonoBehaviour
 
 
                 // Add the valid neighbor to the list
-                neighbours.Add(_pathFindingGrid.GetCellValue(checkX, checkY));
+                neighbours.Add(PathFindingGrid.GetCellValue(checkX, checkY));
             }
         }
 
         return neighbours; // Return the list of valid neighbors
     }
+
     private bool IsInsideGrid(int x, int y)
     {
-        return x >= 0 && x < _pathFindingGrid.GetWidth() && y >= 0 && y < _pathFindingGrid.GetHeight();
+        return x >= 0 && x < PathFindingGrid.GetWidth() && y >= 0 && y < PathFindingGrid.GetHeight();
     }
-    
+
     private List<PathCell> CalculatePath(PathCell endCell)
     {
         // Starting at the end calculate a path back to the start
@@ -267,7 +213,7 @@ public class GameManager : MonoBehaviour
         }
 
         // Path totalled up flip and return results
-        path.Reverse(); 
+        path.Reverse();
         return path;
     }
 
@@ -293,5 +239,10 @@ public class GameManager : MonoBehaviour
 
         // The amount of diagonal moves is the minimum of xDistance and yDistance
         return kMoveDiagonalCost * Mathf.Min(xDistance, yDistance) + kMoveStraightCost * remaining;
+    }
+
+    public Grid<PathCell> GetGrid()
+    {
+        return PathFindingGrid;
     }
 }

@@ -198,7 +198,9 @@ public class Grid<T>
 
     public Vector3 WorldPosition(int x, int y)
     {
-        // Offset to center the grid; adjust Y to start from the bottom left
+
+
+        // Offset to center the grid adjust Y to start from the bottom left
         float offsetX = (x - Width * 0.5f) * _cellSize;
         float offsetY = (y - Height * 0.5f) * _cellSize;
 
