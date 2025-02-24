@@ -45,16 +45,6 @@ public class BrokkrVector2
             return false;
         }
 
-        public override int GetHashCode() => HashCode.Combine(_x, _y);
-
-        // Math
-        public static Vector2 FromPolar(float radius, float angleRadians)
-        {
-            float x = radius * (float)Math.Cos(angleRadians);
-            float y = radius * (float)Math.Sin(angleRadians);
-            return new Vector2(x, y);
-        }
-
         public float Length() => (float)Math.Sqrt(_x * _x + _y * _y);
         public float LengthSquared() => (_x * _x + _y * _y);
 
@@ -104,6 +94,18 @@ public class BrokkrVector2
         public static UnityEngine.Vector2 ToUnityVector(Vector2 brokkrVector)
         {
             return new UnityEngine.Vector2(brokkrVector.X, brokkrVector.Y);
+        }
+
+        // Convert Unity Vector3 to BrokkrVector2.Vector2 Z = 0
+        public static Vector2 FromUnityVector(UnityEngine.Vector3 unityVector)
+        {
+            return new Vector2(unityVector.x, unityVector.y);
+        }
+
+        // Convert BrokkrVector2.Vector2 to Unity Vector3 Z = 0 defaulted
+        public static UnityEngine.Vector3 ToUnityVector(Vector2 brokkrVector, float z = 0f)
+        {
+            return new UnityEngine.Vector3(brokkrVector.X, brokkrVector.Y, z);
         }
     }
 }

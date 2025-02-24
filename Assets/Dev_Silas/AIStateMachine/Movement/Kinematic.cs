@@ -4,7 +4,7 @@ public class Kinematic : MonoBehaviour
 {
     [SerializeField] private float _maxSpeed = 5f;
     [SerializeField] private float _maxAcceleration = 2f;
-    [SerializeField] private float _maxAngularVelocity = 180f; // Degrees per second
+    [SerializeField, Tooltip("Degrees per second")] private float _maxAngularVelocity = 180f;
     [SerializeField] private float _maxAngularAcceleration = 90f;
 
     private Transform _location;
@@ -40,15 +40,20 @@ public class Kinematic : MonoBehaviour
             _velocity = _velocity.Normalize() * _maxSpeed;
         }
 
-        // Apply position change (using Vector3 conversion for Unity)
-        _location.position += new Vector3(_velocity.X, _velocity.Y, 0) * deltaTime;
+        // Apply position change
+        Vector3 applVector3 = BrokkrVector2.Vector2.ToUnityVector(_velocity);
+        _location.position += applVector3 * deltaTime;
 
         // Apply angular acceleration
         _angularVelocity += _angularAcceleration * deltaTime;
         _angularVelocity = Mathf.Clamp(_angularVelocity, -_maxAngularVelocity, _maxAngularVelocity);
 
-        // Apply rotation
-        _location.Rotate(0, 0, _angularVelocity * deltaTime);
+        // Rotation
+        // New rotation angle
+        float newRotation = _location.eulerAngles.z + (_angularVelocity * deltaTime);
+
+        // Apply
+        _location.rotation = Quaternion.Euler(0, 0, newRotation);
     }
 
     public void SetLinearAcceleration(BrokkrVector2.Vector2 acceleration)

@@ -10,12 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9316ae52711755549a29f90deadd435e, type: 3}
-  m_Name: ai_StateMachine
+  m_Name: ai_StateMachine_SlowScene
   m_EditorClassIdentifier: 
   startingStateConfigData: 
   startingStateName: ai_PathingBehavior
-  useSpawnState: 0
   behaviorFactory: {fileID: 11400000, guid: 906f72ab79e3bd74b94ee5dd26c5df07, type: 2}
   aiDefinitions:
-  - AiConfig: {fileID: 11400000, guid: 355f9b93774735048aa61b3893e10d19, type: 2}
+  - AiConfig: {fileID: 11400000, guid: af59200b2c55e8343974aad43cd672b2, type: 2}
     AssociatedStateName: ai_PathingBehavior

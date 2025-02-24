@@ -8,10 +8,12 @@ public class AiStateManager : MonoBehaviour
     [SerializeField] private AiBehaviorManager _stateMachineMetaDatas;
     [SerializeField] private ObjectOverlayTextRenderer _objectOverlayRenderer;
 
+    [SerializeField] private SceneManager sceneManager;
     [SerializeField] private Kinematic _kinematic;
     [SerializeField] private float _rotationSpeed = 200f;
 
     // Readonly properties
+    public SceneManager ActiveSceneManager => sceneManager;
     public BehaviorFactory BehaviorFactory => _behaviors;
     public AiBehaviorManager StateMachineMetaData => _stateMachineMetaDatas;
     public float MaxSpeed => _kinematic.MaxSpeed;
@@ -118,4 +120,9 @@ public class AiStateManager : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other) => _currentState?.OnTriggerEnter(this, other);
     private void OnCollisionStay2D(Collision2D collision) => _currentState?.OnOverlap(this, collision);
     private void OnCollisionExit2D(Collision2D collision) => _currentState?.OnExit(this, collision);
+
+    public void StopMovement()
+    {
+        _kinematic.Stop();
+    }
 }

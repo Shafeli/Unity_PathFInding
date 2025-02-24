@@ -89,5 +89,11 @@ public abstract class AiBaseState
         aiStateManager.gameObject.transform.Translate(direction);
     }
 
+    protected void KinematicMove(AiStateManager aiStateManager, BrokkrVector2.Vector2 velocity, float deltaTime)
+    {
+        Vector2 convert = BrokkrVector2.Vector2.ToUnityVector(velocity);
+        aiStateManager.gameObject.transform.position += (Vector3)(convert * deltaTime);
+    }
+
     public virtual void OnTriggerEnter(AiStateManager aiStateManager, Collider2D other){ } // optional
 }

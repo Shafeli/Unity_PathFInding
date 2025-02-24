@@ -16,7 +16,6 @@ public class AiBehaviorManager : ScriptableObject
     /////////////////////////////////////////////////////////////////////
     [SerializeField] private string startingStateConfigData;
     [SerializeField] private string startingStateName;
-    [SerializeField] private bool useSpawnState = false;
     [SerializeField] private BehaviorFactory behaviorFactory;  // Reference to Factory
     [SerializeField] private List<AiDefinition> aiDefinitions = new List<AiDefinition>();
 
@@ -24,7 +23,6 @@ public class AiBehaviorManager : ScriptableObject
     /////////////////////////////////////////////////////////////////////
     public string StartingStateConfigData => startingStateConfigData;
     public string StartingStateName => startingStateName;
-    public bool UseSpawnState => useSpawnState;
     public BehaviorFactory BehaviorFactory => behaviorFactory;
     public IReadOnlyList<AiDefinition> AiDefinitions => aiDefinitions; // Stop external moding
 
