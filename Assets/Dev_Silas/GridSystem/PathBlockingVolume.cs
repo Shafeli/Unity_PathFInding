@@ -62,8 +62,7 @@ public class PathBlockingVolume : MonoBehaviour
             {
                 if (x < 0 || y < 0 || x >= _pathFindingGrid.GetGrid().GetWidth() || y >= _pathFindingGrid.GetGrid().GetHeight())
                 {
-                    Debug.LogWarning($"Skipping out-of-bounds cell: ({x}, {y})");
-                    continue; // Skip cells that are out of range
+                    continue; // Skip cell if out of range
                 }
 
                 Grid<PathCell>.Cell cell = _pathFindingGrid.GetCell(x, y);

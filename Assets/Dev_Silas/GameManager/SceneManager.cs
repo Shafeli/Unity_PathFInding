@@ -11,6 +11,7 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private bool _debugWorldGridValue = true;
     [SerializeField] private bool _debugWorldGridLines = true;
     [SerializeField] private bool _debugDrawPath = true;
+    [SerializeField] private float _debugDrawPathDuration = 0.5f;
 
     private PathFinding _pathFindingGrid;
     private List<Vector3> _bankedVecPath; // Debugging path 
@@ -92,7 +93,7 @@ public class SceneManager : MonoBehaviour
                 {
                     Vector3 start = _bankedVecPath[i];
                     Vector3 end = _bankedVecPath[i + 1];
-                    Debug.DrawLine(start, end, Color.red, 0.5f);
+                    Debug.DrawLine(start, end, Color.red, _debugDrawPathDuration);
                 }
 
                 _bankedVecPath.Clear();

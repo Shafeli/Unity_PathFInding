@@ -2434,9 +2434,10 @@ MonoBehaviour:
   _worldGridMapWidth: 95
   _worldGridMapHeight: 60
   _worldGridMapCellSize: 1
-  _debugWorldGridValue: 1
+  _debugWorldGridValue: 0
   _debugWorldGridLines: 0
   _debugDrawPath: 1
+  _debugDrawPathDuration: 1.5
 --- !u!1001 &1464000290
 PrefabInstance:
   m_ObjectHideFlags: 0
