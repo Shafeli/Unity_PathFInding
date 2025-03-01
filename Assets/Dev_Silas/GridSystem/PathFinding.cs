@@ -96,7 +96,7 @@ public class PathFinding
             _closedCells.Add(currentCell);
 
             // Check all the neighbours of the current cell
-            var neighbours = GetNeighbours(currentCell);
+            var neighbours = GetNeighbor(currentCell);
             foreach (var neighbour in neighbours)
             {
                 // Check is the neighbour is already checked
@@ -110,7 +110,7 @@ public class PathFinding
                     continue;
                 }
 
-                // Get the distance between the current cell and the neighbour
+                // Get the distance between the current cell and the neighbor
                 int tentativeGCost = currentCell._gCost + CalculateDistanceCost(currentCell, neighbour) * neighbour.Weight;
 
                 // Check if the cost on neighbour is less than the current cost
@@ -122,7 +122,7 @@ public class PathFinding
                     neighbour._hCost = CalculateDistanceCost(neighbour, PathFindingGrid.GetCellValue(endX, endY));
                     neighbour.CalculateFCost();
 
-                    // Check if the neighbour
+                    // Check if the neighbor
                     if (!_openCells.Contains(neighbour))
                     {
                         _openCells.Add(neighbour);
@@ -163,7 +163,7 @@ public class PathFinding
     // Private
     ////////////////////////////////////////////////////
 
-    private List<PathCell> GetNeighbours(PathCell currentCell)
+    private List<PathCell> GetNeighbor(PathCell currentCell)
     {
         List<PathCell> neighbours = new List<PathCell>();
 
